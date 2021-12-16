@@ -23,16 +23,21 @@ class Rebuilding():
             set_of_vrtx = {self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2]}
             if self.old_edge.issubset(set_of_vrtx) and self.vrtx.difference(set_of_vrtx) != self.vrtx:
                 self.smeg_face = self.l_o_f[i]
-            elif self.old_edge.issubset(set_of_vrtx) and self.vrtx.difference(set_of_vrtx) == self.vrtx:
+            if self.old_edge.issubset(set_of_vrtx) and self.vrtx.difference(set_of_vrtx) == self.vrtx:
                 self.degenerat_face = self.l_o_f[i]
-        return print(self.smeg_face[0], self.smeg_face[1], self.smeg_face[2], "сlass Rebuild , find_faces_function")
+        return print(self.smeg_face[0], self.smeg_face[1], self.smeg_face[2], "сlass Rebuild , find smeg faces", '\n',
+                     self.dg_fc[0], self.degenerat_face[1], self.degenerat_face[2], "сlass Rebuild , find  degenerate function")
 
     def dell_faces(self):
+        "создаем множество из вершин грани, если оно содержится в множестве вершин вырожденной грани, то удаляем грань"
         for i in range(0, len(self.l_o_f)):
-            if self.smeg_face[0] == self.l_o_f[i][0] and self.smeg_face[1] == self.l_o_f[i][1] and self.smeg_face[2] == self.l_o_f[i][2]:
+            if self.old_edge.issubset({self.l_o_f[0], self.l_o_f[1], self.l_o_f[2]}):
                 self.l_o_f.pop(i)
-
+            break
+        "создаем множество из вершин грани, если оно содержится в множестве вершин вырожденной грани, то удаляем грань"
         for i in range(0, len(self.l_o_f)):
-            if self.degenerat_face[0] == self.l_o_f[i][0] and self.degenerat_face[1] == self.l_o_f[i][1] and self.degenerat_face[2] == self.l_o_f[i][2]:
+            if self.old_edge.issubset({self.l_o_f[0], self.l_o_f[1], self.l_o_f[2]}):
                 self.l_o_f.pop(i)
+            break
+        return self.l_o_f
 

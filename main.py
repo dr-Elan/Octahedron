@@ -77,9 +77,51 @@ for i in range(0, TIMES - 1):
         # print(fases_len_matrix.todense())
         half_perimetr = (a+b+c)/2.
         if half_perimetr*(half_perimetr - a)*(half_perimetr - b)*(half_perimetr - c) <= 0:
-            rebuild = Rebuilding(list_faces, fs, length_matrix)
-            rebuild.find_faces()
-            print(i)
+            for i in range(0, len(list_faces)):
+                print(list_faces[i][0], list_faces[i][1], list_faces[i][2])
+            print(len(list_faces), 'количество граней')
+            if a == max(a,b, c):
+                old_edge = {fs[0], fs[1]}
+                dg_vx = {fs[2]}
+            elif b == max(a, b, c):
+                old_edge = {fs[1], fs[2]}
+                dg_vx = {fs[0]}
+            elif c == max(a, b, c):
+                old_edge = {fs[2], fs[0]}
+                dg_vx = {fs[1]}
+            print('выводим получившиеся ребро ', old_edge, 'и вершину', dg_vx )
+            for i in range(0, len(list_faces)):
+                set_of_vrtx = {list_faces[i][0], list_faces[i][1], list_faces[i][2]}
+                if old_edge.issubset(set_of_vrtx):
+                    print(list_faces[i][0], list_faces[i][1], list_faces[i][2], 'удаляем вырожденные грани',  'degenerate faces')
+                    list_faces.pop(i)
+                    break
+            for i in range(0, len(list_faces)):
+                set_of_vrtx = {list_faces[i][0], list_faces[i][1], list_faces[i][2]}
+                if old_edge.issubset(set_of_vrtx) :
+                    print(list_faces[i][0], list_faces[i][1], list_faces[i][2], 'удаляем грани смежные с вырожденными', 'degenerate faces')
+                    list_faces.pop(i)
+                    break
+            for i in range(0, len(list_faces)):
+                print(list_faces[i][0], list_faces[i][1], list_faces[i][2])
+            print(len(list_faces), 'количество граней')
+
+
+
+            #         # print(fs[0], fs[1], fs[2])
+            # for i in list_faces:
+            #     set_of_vrtx = set(i)
+            #     # set_of_vrtx = {list_faces[i][0], list_faces[i][1], list_faces[i][1]}
+            #     if old_edge.issubset(set_of_vrtx) and dg_vx.issubset(set_of_vrtx):
+            #         print(list_faces[i][0], list_faces[i][1], list_faces[i][2], 'smeg of degenerate faces')
+
+
+            # rebuild = Rebuilding(list_faces, fs, length_matrix)
+            # rebuild.find_faces()
+            # new_fases = rebuild.dell_faces()
+            # for i in range(0, len(new_fases)):
+            #     print(new_fases[i][0], '\t', new_fases[i][1], '\t', new_fases[i][2])
+
 
            ######################################################################################################
            ####                                                                                             #####
