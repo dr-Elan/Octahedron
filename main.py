@@ -3,17 +3,17 @@ import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-
+import sys
 from faces import Faces
 from smeg_matrix import *
-# from animation import *
+from animation import *
 from rebuilding import Rebuilding
 
 file_path = '/Users/ruslanpepa/PycharmProjects/Octahedron/octahedron.txt'
 VERTEX = 6  # количество вершин в многограннике
 EDGES = 12  # количество ребер в многограннике
 FACES = 8  # количестов граней в многограннике
-TIMES = 12000 # количество шагов по времени
+TIMES = 100 # количество шагов по времени
 step_time = 0.0001  # шаг по времени
 list_faces = []  # список, который будет содержать все грани
 with open(file_path) as fl_wth_fs:  # выгрузим из файла все номера вершин
@@ -41,9 +41,19 @@ while True:
     for i in range(0, VERTEX):
         for j in range(i, VERTEX):
             if length_matrix[i, j] != 0:
-                length_matrix[i, j] = length_matrix[j, i] = random.uniform(1, 7)
+                length_matrix[i, j] = length_matrix[j, i] = np.random.uniform(4.1, 7.1)
     if len(gauss_curve_calculate(length_matrix)) == VERTEX:
         break
+numerate_of_edges = {} # Этот словарь для сопоставления номеров рёбер и вершин
+ij = 0 # Переменная, которая нужна для того, чтобы нумеровать рёбра на октаедре
+for i in range(0, VERTEX):
+    for j in range(i, VERTEX):
+        if length_matrix[i,j] != 0:
+            length_of_octahedron[ij, 0] = length_matrix[i,j]
+            numerate_of_edges[ij] = {i,j}
+            ij += 1
+print(numerate_of_edges)
+print(length_of_octahedron[:,:4])
 # for i in range(0, VERTEX):
 #     for j in range(i, VERTEX):
 #         if length_matrix[i, j] != 0:
@@ -57,8 +67,8 @@ for i in range(0, VERTEX):
 
 
 for i in range(0, TIMES - 1):
-    if i%1000 == 0:
-        print(i)
+    if i%100 == 0:
+        print(i, 'hello')
     for j in range(0, VERTEX):
         # k1 = k2 = k3 = k4 = .0
         k0 = -(gauss_curve[j] - 4. * np.pi / VERTEX) * conformal_weights[j, i]
@@ -70,6 +80,7 @@ for i in range(0, TIMES - 1):
     # vector_times = conformal_weights[:, i]
     # print('kaly_menger:', keyle_menger_det(length_matrix, VERTEX))
     times = 0
+    perestroyka = 0
     for fs in list_faces:
         a = length_matrix[fs[0], fs[1]]
         b = length_matrix[fs[1], fs[2]]
@@ -77,60 +88,14 @@ for i in range(0, TIMES - 1):
         # print(fases_len_matrix.todense())
         half_perimetr = (a+b+c)/2.
         if half_perimetr*(half_perimetr - a)*(half_perimetr - b)*(half_perimetr - c) <= 0:
-            for i in range(0, len(list_faces)):
-                print(list_faces[i][0], list_faces[i][1], list_faces[i][2])
-            print(len(list_faces), 'количество граней')
-            if a == max(a,b, c):
-                old_edge = {fs[0], fs[1]}
-                dg_vx = {fs[2]}
-            elif b == max(a, b, c):
-                old_edge = {fs[1], fs[2]}
-                dg_vx = {fs[0]}
-            elif c == max(a, b, c):
-                old_edge = {fs[2], fs[0]}
-                dg_vx = {fs[1]}
-            print('выводим получившиеся ребро ', old_edge, 'и вершину', dg_vx )
-            for i in range(0, len(list_faces)):
-                set_of_vrtx = {list_faces[i][0], list_faces[i][1], list_faces[i][2]}
-                if old_edge.issubset(set_of_vrtx):
-                    print(list_faces[i][0], list_faces[i][1], list_faces[i][2], 'удаляем вырожденные грани',  'degenerate faces')
-                    list_faces.pop(i)
-                    break
-            for i in range(0, len(list_faces)):
-                set_of_vrtx = {list_faces[i][0], list_faces[i][1], list_faces[i][2]}
-                if old_edge.issubset(set_of_vrtx) :
-                    print(list_faces[i][0], list_faces[i][1], list_faces[i][2], 'удаляем грани смежные с вырожденными', 'degenerate faces')
-                    list_faces.pop(i)
-                    break
-            for i in range(0, len(list_faces)):
-                print(list_faces[i][0], list_faces[i][1], list_faces[i][2])
-            print(len(list_faces), 'количество граней')
-
-
-
-            #         # print(fs[0], fs[1], fs[2])
-            # for i in list_faces:
-            #     set_of_vrtx = set(i)
-            #     # set_of_vrtx = {list_faces[i][0], list_faces[i][1], list_faces[i][1]}
-            #     if old_edge.issubset(set_of_vrtx) and dg_vx.issubset(set_of_vrtx):
-            #         print(list_faces[i][0], list_faces[i][1], list_faces[i][2], 'smeg of degenerate faces')
-
-
-            # rebuild = Rebuilding(list_faces, fs, length_matrix)
-            # rebuild.find_faces()
-            # new_fases = rebuild.dell_faces()
-            # for i in range(0, len(new_fases)):
-            #     print(new_fases[i][0], '\t', new_fases[i][1], '\t', new_fases[i][2])
-
-
-           ######################################################################################################
-           ####                                                                                             #####
-           #### ЗДЕСЬ НАЧИНАЕТСЯ КОД НА СЛУЧАЙ ЕСЛИ ОДНА ИЗ ГРАНЕЙ СХЛОПНИТСЯ И НАДО СДЕЛАТЬ ПЕРЕСТРОЙКУ    #####
-
-           #### ЗДЕСЬ ЗАКАНЧИВАЕТСЯ КОД НА СЛУЧАЙ ЕСЛИ ОДНА ИЗ ГРАНЕЙ СХЛОПНИТСЯ И НАДО СДЕЛАТЬ ПЕРЕСТРОЙКУ #####
-           ####                                                                                             #####
-           ######################################################################################################
-            break
+            print('Перестройка', perestroyka)
+            perestroyka += 1
+            rebuild = Rebuilding(list_faces, fs, length_matrix )
+            rebuild.find_faces()
+            rebuild.dell_faces()
+            rebuild.new_faces()
+            rebuild.new_length()
+            sys.exit(0) # Преждевременное завершение программы
         else:
             kl_mng = np.sqrt(half_perimetr*(half_perimetr - a)*(half_perimetr - b)*(half_perimetr - c))
         kayli_manger[times, i+1] = kl_mng
@@ -138,6 +103,13 @@ for i in range(0, TIMES - 1):
         # print('keyli_menger:',kl_mng)
 
     i_lng_mtx = get_length(length_matrix, conformal_weights[:, i+1])  # Пересчитываем все длины сторон
+    ij = 0
+    for i1 in range(0, VERTEX):
+        for j1 in range(i1, VERTEX):
+            if length_matrix[i1, j1] != 0:
+                length_of_octahedron[ij, i+1] = i_lng_mtx[i1, j1]
+                ij +=1
+                # numerate_of_edges[ij] = {i, j}
     gauss_curve = gauss_curve_calculate(i_lng_mtx)  # Пересчитываем все значения кривизн в вершинах тетраэдра
     if len(gauss_curve) != VERTEX:
         print('calculate gauss_curve return ', None)
@@ -149,4 +121,8 @@ for i in range(0, TIMES - 1):
         gauss_curvature[j, i+1] = gauss_curve[j]
         max_gauss_curv[i+1] = max(gauss_curve)
         min_gauss_curv[i+1] = min(gauss_curve)
-    # print('gauss curve:', gauss_curve)
+#     # print('gauss curve:', gauss_curve)
+# ani = animation.FuncAnimation(fig, animate, np.arange(1, TIMES), init_func=init,
+#                               interval=100, blit=True)
+#
+# ani.save('sine_wave.gif', writer='pillow')

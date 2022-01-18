@@ -26,7 +26,7 @@ def adjacency_matrix(faces, vertex):
         col.append(fs[0])
         col.append(fs[2])
     print('row and col:','\n', row ,'\n',  col)
-    data = [1] * len(row)  # массив единиц, нужен для конструктора разреженной матрицы
+    data = [1.] * len(row)  # массив единиц, нужен для конструктора разреженной матрицы
     space_row = np.array(row)
     space_col = np.array(col)
     space_data = np.array(data)
@@ -93,7 +93,7 @@ def get_length(lenth, cmfrU):
     space_row = np.array(row)
     space_col = np.array(col)
     space_data = np.array(data)
-    new_length_matrix = sparse.coo_matrix((space_data, (space_row, space_col)), shape=(6, 6)).tocsc()
+    new_length_matrix = sparse.coo_matrix((space_data, (space_row, space_col)), shape=(6, 6), dtype = 'd').tocsc()
 
     # print('to_dense:', lenth.todense())
     # print('row:', row, 'col:', col, lenth.data)
