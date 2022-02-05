@@ -41,7 +41,7 @@ while True:
     for i in range(0, VERTEX):
         for j in range(i, VERTEX):
             if length_matrix[i, j] != 0:
-                length_matrix[i, j] = length_matrix[j, i] = np.random.uniform(4.1, 7.1)
+                length_matrix[i, j] = length_matrix[j, i] = np.random.uniform(6.1, 7.1)
     if len(gauss_curve_calculate(length_matrix)) == VERTEX:
         break
 numerate_of_edges = {} # Этот словарь для сопоставления номеров рёбер и вершин
