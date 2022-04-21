@@ -1,4 +1,5 @@
 import numpy as np
+from smeg_matrix import adjacency_matrix
 
 from faces import Faces
 class Rebuilding():
@@ -12,7 +13,7 @@ class Rebuilding():
             self.set_of_vertex.add(self.l_o_f[i][0])
             self.set_of_vertex.add(self.l_o_f[i][1])
             self.set_of_vertex.add(self.l_o_f[i][2])
-        print(self.set_of_vertex)
+        print("создаём класс", self.set_of_vertex)
         # for i in range(0, len(self.l_o_f)):
         #     print('initialisation', self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
 
@@ -20,6 +21,7 @@ class Rebuilding():
         self.a = self.l_mtx[self.dg_fc[0], self.dg_fc[1]]
         self.b = self.l_mtx[self.dg_fc[1], self.dg_fc[2]]
         self.c = self.l_mtx[self.dg_fc[0], self.dg_fc[2]]
+        print('find_faces')
         if self.a == max(self.a, self.b, self.c):
             self.old_edge = {self.dg_fc[0], self.dg_fc[1]} # вершины, которые лежат на ребре, которое надо удалит
             self.vrtx = {self.dg_fc[2]} # вершина вырожденной грани, которая лежит напротив наибольшего ребера
@@ -79,7 +81,9 @@ class Rebuilding():
         # self.l_o_f.append(Faces(fst_vtx, scn_vtx, self.old_edge[1]))
         print('выводим список новых граней')
         for i in range(0, len(self.l_o_f)):
-            print(self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
+            print('hello, operation new_faces, rebuilding class:', self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
+        # self.adj_matx = adjacency_matrix(self.l_o_f, 6)
+        return self.l_o_f
 
     def new_length(self):
         edge_4_dell = list(self.old_edge)
@@ -91,14 +95,27 @@ class Rebuilding():
         c_shtrih = self.l_mtx[self.b[0], edge_4_dell[0]] # А штрих
         b_shtrih = self.l_mtx[self.b[0], edge_4_dell[1]] # B штрих
         # delta = (b_length + c_length - a_length)/(c_length + b_length)
-        cosine_alpha = ((c_length + b_length)**2 + c_shtrih**2 - b_shtrih**2)/( 2 * (c_length + b_length) * c_shtrih )
-        lenth_of_new_edge = np.sqrt(c_length**2 + c_shtrih**2 - 2.*c_length*c_shtrih * cosine_alpha)
+
+        try:
+            cosine_alpha = ((c_length + b_length) ** 2 + c_shtrih ** 2 - b_shtrih ** 2) / (2. * (c_length + b_length) * c_shtrih)
+            lenth_of_new_edge = np.sqrt(c_length**2 + c_shtrih**2 - 2.*c_length*c_shtrih * cosine_alpha)
+        except ArithmeticError:
+            print('Delenie na nol')
         print('lenth_of_new_edge:', lenth_of_new_edge)
-        self.l_mtx[edge_4_dell[0], edge_4_dell[1]] = self.l_mtx[edge_4_dell[1], edge_4_dell[0]] = 0
-        print(self.set_of_vrtx)
+        self.adj_matx = adjacency_matrix(self.l_o_f, len(list(self.set_of_vertex)))
+        for i in range(0, len(list(self.set_of_vrtx))):
+            for j in range(0, len(list(self.set_of_vrtx))):
+                if self.adj_matx[i, j] != 0:
+                    self.adj_matx[i, j] = self.l_mtx[i, j]
+        self.adj_matx[self.a[0], self.b[0]] = self.adj_matx[self.b[0], self.a[0]] = lenth_of_new_edge
+        # self.l_mtx[edge_4_dell[0], edge_4_dell[1]] = self.l_mtx[edge_4_dell[1], edge_4_dell[0]] = 0
+        # print(self.set_of_vrtx)
         #
-        self.l_mtx[self.a[0], self.b[0]] = self.l_mtx[self.b[0], self.a[0]] = lenth_of_new_edge
+        # self.l_mtx[self.a[0], self.b[0]] = self.l_mtx[self.b[0], self.a[0]] = lenth_of_new_edge
         for i in range(0, len(list(self.set_of_vertex))):
             for j in range(0, len(list(self.set_of_vertex))):
-                print(self.l_mtx[i, j], end=' ')
+                print(float("{0:.1f}".format(self.l_mtx[i, j])), end='\t')
             print('\n')
+        return self.adj_matx
+
+

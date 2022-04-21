@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 import matplotlib.patches as patches
 from matplotlib.patches import Circle, Wedge, Polygon
 from matplotlib.collections import PatchCollection
-from main import *
+# from main import *
 
 fig = plt.figure()
 # ax = fig.add_subplot(111)
@@ -47,7 +47,7 @@ for i in range(0, len(list_of_a_edg)):
         patch.set_color('Red')
         ax[0].add_patch(patch)
     if i == 1:
-        v_ = np.array([[0, 0.], [ a * cosine, - a * sinus], [ c, 0.]])
+        v_ = np.array([[0, 0.], [a * cosine, - a * sinus], [c, 0.]])
         # print('pechataem krasnye', v_)
         patch_ = patches.Polygon(v_, closed=False, fc='r', ec='r', alpha=0.4)
         patch_.set_color('Red')

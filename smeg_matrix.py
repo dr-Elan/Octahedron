@@ -5,7 +5,8 @@ import numpy as np
 from scipy import sparse
 from faces import Faces
 
-
+def column(matrix, i):
+    return [row[i] for row in matrix]
 # функция, которая создает матрицу смежности
 def adjacency_matrix(faces, vertex):
     row = []
@@ -52,18 +53,33 @@ def gauss_curve_calculate(matrix_length):
         dictinary_gauss[key] = list(map(list, {tuple(x) for x in list_of_adjency_vertex}))
     # print(dictinary_vertex)
     gauss_curve = np.full(len(dictinary_gauss), 2 * np.pi)
+    exeptions = 0
     for key, val in dictinary_gauss.items():
+
         for v in val:
             a = matrix_length[v[0], v[1]]
             b = matrix_length[v[1], key]
             c = matrix_length[v[0], key]
-            val_arccos = (b ** 2 + c ** 2 - a ** 2) / (2 * c * b)
-            if (1 < val_arccos or val_arccos < -1):
-                return np.full(1, 1)  # если не выполнено неравенство треугольника, то функция возвращает None
+            c_cos = (b ** 2 + c ** 2 - a ** 2) / (2. * c * b)
+
+            hafl_perim = (a + b + c)/2.
+
+            kl_mng = hafl_perim*(hafl_perim - a)*(hafl_perim - b) * (hafl_perim - c)
+            if kl_mng >= 0:
+                gauss_curve[key] -= np.arccos(c_cos)
             else:
-                gauss_curve[key] -= np.arccos(val_arccos)
-    # print('gauss_curve', gauss_curve)
-    return (gauss_curve)
+                print("gauss_curve РАВНО НУЛЮ" )
+                gauss_curve[key] = 0
+                exeptions = 1
+
+                # print(exeptions)
+            # if (1 <= val_arccos or val_arccos <= -1):
+            #     return np.full(1, 1)  # если не выполнено неравенство треугольника, то функция возвращает None
+            # else:
+    if exeptions == 1:
+        return []
+    else:
+         return gauss_curve
 
 
 def keyle_menger_det(mtx_length, vtx):
@@ -86,14 +102,14 @@ def keyle_menger_det(mtx_length, vtx):
 
 
 
-def get_length(lenth, cmfrU):
+def get_matrix_lenght(lenth, cmfrU, vrtx):
     row, col = lenth.nonzero()
     data = [1.] * len(row)
 
     space_row = np.array(row)
     space_col = np.array(col)
     space_data = np.array(data)
-    new_length_matrix = sparse.coo_matrix((space_data, (space_row, space_col)), shape=(6, 6), dtype = 'd').tocsc()
+    new_length_matrix = sparse.coo_matrix((space_data, (space_row, space_col)), shape=(vrtx, vrtx), dtype = 'd').tocsc()
 
     # print('to_dense:', lenth.todense())
     # print('row:', row, 'col:', col, lenth.data)
@@ -103,9 +119,19 @@ def get_length(lenth, cmfrU):
         new_length_matrix[col[j], row[j]] = lenth[col[j], row[j]] * cmfrU[col[j]] * cmfrU[row[j]]
         # for i in range(0, len(cmfrU)):
     #     for j in range(0, len(cmfrU)):
-    #         lenth[i, j] = lenth[j, i] = lenth[i, j]*cmfrU[i]*cmfrU[j]
-    return new_length_matrix
+    if len(gauss_curve_calculate(new_length_matrix)) == 0:
+        return []
+    else:
+        return new_length_matrix
 
+
+def get_lenght(matrix_lenght, vrtx):
+    new_length_edges = []
+    for i1 in range(0, vrtx):
+        for j1 in range(i1, vrtx):
+            if matrix_lenght[i1, j1] != 0:
+                new_length_edges.append(matrix_lenght[i1, j1])
+    return new_length_edges
 
 def fasec_kayli_menger (matrix_length):
     row, col = matrix_length.nonzero()  # в
