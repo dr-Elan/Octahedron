@@ -52,30 +52,30 @@ def gauss_curve_calculate(matrix_length):
                     list_of_adjency_vertex.append(sorted([i, j]))
         dictinary_gauss[key] = list(map(list, {tuple(x) for x in list_of_adjency_vertex}))
     # print(dictinary_vertex)
-    gauss_curve = np.full(len(dictinary_gauss), 2 * np.pi)
+    gauss_curve = np.full(len(dictinary_gauss), 2. * np.pi)
     exeptions = 0
+    klmng = set()
     for key, val in dictinary_gauss.items():
-
         for v in val:
             a = matrix_length[v[0], v[1]]
             b = matrix_length[v[1], key]
             c = matrix_length[v[0], key]
+
             c_cos = (b ** 2 + c ** 2 - a ** 2) / (2. * c * b)
 
             hafl_perim = (a + b + c)/2.
 
-            kl_mng = hafl_perim*(hafl_perim - a)*(hafl_perim - b) * (hafl_perim - c)
+            kl_mng = float("{0:.1f}".format(hafl_perim*(hafl_perim - a)*(hafl_perim - b) * (hafl_perim - c)))
+            klmng.add(kl_mng)
+            # print('gauss calc', kl_mng)
             if kl_mng >= 0:
                 gauss_curve[key] -= np.arccos(c_cos)
             else:
-                print("gauss_curve РАВНО НУЛЮ" )
+                print("gauss_curve РАВНО НУЛЮ")
                 gauss_curve[key] = 0
                 exeptions = 1
 
-                # print(exeptions)
-            # if (1 <= val_arccos or val_arccos <= -1):
-            #     return np.full(1, 1)  # если не выполнено неравенство треугольника, то функция возвращает None
-            # else:
+    # print('gauss curve calculate', klmng)
     if exeptions == 1:
         return []
     else:
@@ -119,10 +119,8 @@ def get_matrix_lenght(lenth, cmfrU, vrtx):
         new_length_matrix[col[j], row[j]] = lenth[col[j], row[j]] * cmfrU[col[j]] * cmfrU[row[j]]
         # for i in range(0, len(cmfrU)):
     #     for j in range(0, len(cmfrU)):
-    if len(gauss_curve_calculate(new_length_matrix)) == 0:
-        return []
-    else:
-        return new_length_matrix
+
+    return new_length_matrix
 
 
 def get_lenght(matrix_lenght, vrtx):
@@ -150,6 +148,7 @@ def fasec_kayli_menger (matrix_length):
                     list_of_adjency_vertex.append(sorted([i, j]))
         dictinary_gauss[key] = list(map(list, {tuple(x) for x in list_of_adjency_vertex}))
     # print(dictinary_vertex)
+
     for key, val in dictinary_gauss.items():
         for v in val:
             a = matrix_length[v[0], v[1]]

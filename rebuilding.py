@@ -32,18 +32,18 @@ class Rebuilding():
             self.old_edge = {self.dg_fc[1], self.dg_fc[2]} # вершины, которые лежат на ребре, которое надо удалит
             self.vrtx = {self.dg_fc[0]} # вершина вырожденной грани, которая лежит напротив наибольшего ребера
         print(self.old_edge, 'ребро для удаления', self.vrtx, "вершина")
+
         for i in range(0, len(self.l_o_f)):
-            self.set_of_vrtx = {self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2]}
-            if self.old_edge.issubset(self.set_of_vrtx) and self.vrtx.difference(self.set_of_vrtx) == self.vrtx:
-                print('Нашли грань смежную с вырожденной')
-                print(self.old_edge, self.vrtx.difference(self.set_of_vrtx), 'ребро для удалений и вершина')
-                print(self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
-                self.smeg_face = self.l_o_f[i]
-            elif self.old_edge.issubset(self.set_of_vrtx) and self.vrtx.difference(self.set_of_vrtx) != self.vrtx:
-                print('нашли вырожденное ребро')
-                print(self.old_edge, self.vrtx.difference(self.set_of_vrtx), 'ребро для удаления и в смежной грани')
-                print(self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
-                self.degenerat_face = self.l_o_f[i]
+            set_of_vrtx = {self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2]}
+            if self.old_edge.issubset(set_of_vrtx):
+                if self.vrtx.issubset(set_of_vrtx):
+                    self.degenerat_face = self.l_o_f[i]
+
+                    print('вырожденная грань:', self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
+                else:
+                    self.smeg_face = self.l_o_f[i]
+                    print('смежная с вырожденной гранью:', self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
+
         return print(self.smeg_face[0], self.smeg_face[1], self.smeg_face[2], "сlass Rebuild , find smeg faces", '\n',
                      self.dg_fc[0], self.degenerat_face[1], self.degenerat_face[2], "сlass Rebuild , find  degenerate function")
 
@@ -97,16 +97,19 @@ class Rebuilding():
         # delta = (b_length + c_length - a_length)/(c_length + b_length)
 
         try:
-            cosine_alpha = ((c_length + b_length) ** 2 + c_shtrih ** 2 - b_shtrih ** 2) / (2. * (c_length + b_length) * c_shtrih)
+            cosine_alpha = ((a_length) ** 2 + c_shtrih ** 2 - b_shtrih ** 2) / (2. * (c_length + b_length) * c_shtrih)
             lenth_of_new_edge = np.sqrt(c_length**2 + c_shtrih**2 - 2.*c_length*c_shtrih * cosine_alpha)
         except ArithmeticError:
             print('Delenie na nol')
         print('lenth_of_new_edge:', lenth_of_new_edge)
         self.adj_matx = adjacency_matrix(self.l_o_f, len(list(self.set_of_vertex)))
-        for i in range(0, len(list(self.set_of_vrtx))):
-            for j in range(0, len(list(self.set_of_vrtx))):
+        print(len(self.adj_matx.nonzero()), 'количество ненулевых элементов в новой матрице')
+        for i in range(0, len(list(self.set_of_vertex))):
+            for j in range(i, len(list(self.set_of_vertex))):
                 if self.adj_matx[i, j] != 0:
                     self.adj_matx[i, j] = self.l_mtx[i, j]
+                    self.adj_matx[j, i] = self.l_mtx[i, j]
+        print('номера вершин, которые необходимо соединить:', self.a[0], self.b[0])
         self.adj_matx[self.a[0], self.b[0]] = self.adj_matx[self.b[0], self.a[0]] = lenth_of_new_edge
         # self.l_mtx[edge_4_dell[0], edge_4_dell[1]] = self.l_mtx[edge_4_dell[1], edge_4_dell[0]] = 0
         # print(self.set_of_vrtx)
@@ -114,7 +117,7 @@ class Rebuilding():
         # self.l_mtx[self.a[0], self.b[0]] = self.l_mtx[self.b[0], self.a[0]] = lenth_of_new_edge
         for i in range(0, len(list(self.set_of_vertex))):
             for j in range(0, len(list(self.set_of_vertex))):
-                print(float("{0:.1f}".format(self.l_mtx[i, j])), end='\t')
+                print(float("{0:.1f}".format(self.adj_matx[i, j])), end='\t')
             print('\n')
         return self.adj_matx
 

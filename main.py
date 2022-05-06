@@ -51,7 +51,7 @@ for i in range(0, VERTEX):
             numerate_of_edges[ij] = {i, j}
             ij += 1
 
-
+prorisovka = 0
 
 gauss_curve = gauss_curve_calculate(length_matrix)
 
@@ -60,8 +60,10 @@ for i in range(0, VERTEX):
     # print('gauss_curvature in vertex', i, gauss_curvature[i, 0])
 for j in range(0, VERTEX):
     for k in range(0, VERTEX):
-        print(float("{0:.1f}".format(length_matrix[i, j])), end='\t')
+        print(float("{0:.1f}".format(length_matrix[j, k])), end='\t')
     print('\n')
+
+
 for i in range(0, TIMES - 1):
 
     # print(i, 'hello world')
@@ -69,37 +71,43 @@ for i in range(0, TIMES - 1):
     conformal_weights[:, i+1] = calc.weight_calculate() # Пересчитываем конфорные веса
     i_lng_mtx = get_matrix_lenght(length_matrix, conformal_weights[:, i + 1], VERTEX)  # вычисляем матрицу длин рёбер
 
-    times = 0
+    times_for_faces = 0
     perestroyka = 0
-
+    klmng = set()
     for fs in list_faces:
+        times_for_faces += 1
         a = i_lng_mtx[fs[0], fs[1]]
         b = i_lng_mtx[fs[1], fs[2]]
         c = i_lng_mtx[fs[2], fs[0]]
+        # print(a, b, c)
         exceptions = 0
-        half_perimetr = (a + b + c) / 2.
-        if half_perimetr >= 0:
+        hafl_perim = (a + b + c)/2.
+        if hafl_perim >= 0:
             exceptions = 0
         else:
             exceptions = 1
         kl_mng = 0
+        # print('sting NUMBER 86: exception:', exceptions)
+        kl_mng = float("{0:.1f}".format(hafl_perim * (hafl_perim - a) * (hafl_perim - b) * (hafl_perim - c)))
+        klmng.add(kl_mng)
+        # print('times_for_faces%', times_for_faces,kl_mng )
 
-        try:
-            print('try')
-            kl_mng =np.sqrt(half_perimetr * (half_perimetr - a) * (half_perimetr - b) * (half_perimetr - c))
-            a_cos = (b ** 2 + c ** 2 - a ** 2) / (2 * c * b)
-            b_cos = (c ** 2 + a ** 2 - b ** 2) / (2 * a * c)
-            c_cos = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+        if kl_mng > 0:
+            # kl_mng = Error:failed to create a child event loop
+            # print('try', half_perimetr * (half_perimetr - a) * (half_perimetr - b) * (half_perimetr - c))
+            a_cos = (b ** 2 + c ** 2 - a ** 2) / (2. * c * b)
+            b_cos = (c ** 2 + a ** 2 - b ** 2) / (2. * a * c)
+            c_cos = (a ** 2 + b ** 2 - c ** 2) / (2. * a * b)
             a_sin = np.sqrt(1. - a_cos**2)
             b_sin = np.sqrt(1. - b_cos ** 2)
             c_sin = np.sqrt(1. - c_cos ** 2)
             # print("keyli menger:", kl_mng)
-            kayli_manger[times, i + 1] = kl_mng
-        except:
+            # kayli_manger[TIMES, i + 1] = kl_mng
+        else:
             print('Перестройка №_', perestroyka)
             perestroyka += 1
             exceptions = 1
-            exit(0)
+            # exit(0)
         if exceptions == 1:
 
             print('pered tem kak sozdat class rebuild')
@@ -108,19 +116,29 @@ for i in range(0, TIMES - 1):
             rebuild.dell_faces()
             list_faces = rebuild.new_faces()
             i_lng_mtx = rebuild.new_length()
-            kayli_manger[times, i + 1] = kl_mng
-            times += 1
-            print('perestroyka zakonchena')
-        if len(gauss_curve_calculate(i_lng_mtx)) == 0:
-            print("perestroyka ne udalas")
-            break
-        else:
-            length_of_octahedron[:, i + 1] = get_lenght(i_lng_mtx, VERTEX)  # длину рёбер октаэдра вносим в массив длин ребер
-            gauss_curve = gauss_curve_calculate(i_lng_mtx)  # пересчитываем гаусовы кривизны
+            # kayli_manger[times, i + 1] = kl_mng
+            # times += 1
+            print('perestroyka zakonchena', 'шаг по времени равен', i)
+            prorisovka = i
+
+    # print('cycle for all faces', klmng)
+
+    try:
+        length_of_octahedron[:, i + 1] = get_lenght(i_lng_mtx, VERTEX)  # длину рёбер октаэдра вносим в массив длин ребер
+        gauss_curve = gauss_curve_calculate(i_lng_mtx)  # пересчитываем гаусовы кривизны
             # exit(0)
+    except:
+        print("perestroyka ne udalas")
+        break
 
 
-
+# list_of_a_edg = []
+# list_of_b_edg = []
+# list_of_c_edg = []
+# for i in range(0, len(list_faces)):
+#     list_of_a_edg.append(list_faces[0])
+#     list_of_b_edg.append(list_faces[1])
+#     list_of_c_edg.append(list_faces[2])
 
 
 list_of_a_edg = [0, 4, 1, 5, 2, 6, 3, 7]
@@ -138,7 +156,7 @@ for j in range(0, 4):
         ax[1, j].set_xlim(0, 7)
         ax[1, j].set_ylim(-7, 0)
         ax[1, j].grid(True)
-phasa = np.arange(0, TIMES-1)
+phasa = np.arange(0, prorisovka)
 frames = []
 
 for p in phasa:
