@@ -1,8 +1,8 @@
 import numpy as np
 from rebuilding import Rebuilding
 class Calculate():
-    def __init__(self, length_of_octahedron, gauss_curve, list_faces, conformal_weights ):
-        self.lenght_of_edges = length_of_octahedron
+    def __init__(self, gauss_curve, list_faces, conformal_weights ):
+        # self.lenght_of_edges = length_of_octahedron
         self.curv_gauss_vrtx = gauss_curve
         self.l_o_f = list_faces
         self.conf_weght = conformal_weights

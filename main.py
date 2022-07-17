@@ -7,13 +7,14 @@ from rebuilding import Rebuilding
 from calculation import Calculate
 from matplotlib.animation import ArtistAnimation
 from matplotlib.ticker import NullLocator
+# warnings.simplefilter('ignore', SparseEfficiencyWarning)
 lc = NullLocator()
 
-file_path = '/Users/ruslanpepa/PycharmProjects/Octahedron/octahedron.txt'
-VERTEX = 6  # количество вершин в многограннике
-EDGES = 12  # количество ребер в многограннике
-FACES = 8  # количестов граней в многограннике
-TIMES = 1000 # количество шагов по времени
+file_path = '/Users/ruslanpepa/PycharmProjects/Octahedron/tet_octahed.txt'
+VERTEX = 5  # количество вершин в многограннике
+EDGES = 9  # количество ребер в многограннике
+FACES = 6  # количестов граней в многограннике
+TIMES = 12# количество шагов по времени
 step_time = 0.001  # шаг по времени
 list_faces = []  # список, который будет содержать все грани
 with open(file_path) as fl_wth_fs:  # выгрузим из файла все номера вершин
@@ -28,64 +29,102 @@ max_gauss_curv = np.ones(TIMES, float) # график максимальной �
 min_gauss_curv = np.ones(TIMES, float) # график минимальной кривизнв веришне
 conformal_weights = np.ones((VERTEX, TIMES), float)  # конформные веса в вершинах
 gauss_curvature = np.zeros((VERTEX, TIMES), float) # гауссова кривизна в начальный момент времени
-length_of_octahedron = np.ones((EDGES, TIMES), float) # экспериментальная матрица для отображения длин рёбер
+# length_matrix = sparse.coo_matrix((space_data, (space_row, space_col)), shape=(vertex, vertex)).tocsc() # матрица для того, чтобы
+# length_of_octahedron = np.ones((EDGES, TIMES), float) # экспериментальная матрица для отображения длин рёбер
 kayli_manger = np.zeros((FACES, TIMES), float) # массив, который будет содержать значения определителей Кэлли-Менгера на грани
-length_matrix = adjacency_matrix(list_faces, VERTEX)  # матрица смежности длин рёбер
+adj_matx = adjacency_matrix(list_faces, VERTEX)  # матрица смежности длин рёбер
+adj_matx_numpy = adj_matx.toarray()
+for i in range(0, VERTEX):
+    for j in range(0, VERTEX):
+        if (adj_matx_numpy[i][j] != 0):
+            adj_matx_numpy[i][j] = 1
+        else:
+            adj_matx_numpy[i][j] = 0
 
+adj_matx_numpy.astype(int)
+##создаём файл и записываем в него матрицу смежности
+degenerate_faces = []
+
+# print(degenerate_faces[0][0])
+myfile = open("/Users/ruslanpepa/PycharmProjects/Octahedron/data/data_triang.txt", "w+")
+string_matrix = '{'
+for k in range(0, VERTEX):
+    string_matrix += "{"
+    for l in range(0, VERTEX):
+        if l != VERTEX-1:
+            string_matrix += (str(adj_matx_numpy[k][l].astype(int)) + ',')
+        else:
+            string_matrix += (str(adj_matx_numpy[k][l].astype(int)) )
+    if k != VERTEX-1:
+        string_matrix += "},"
+    else:
+        string_matrix += "}}"
+
+
+myfile.write(string_matrix + '\n' + '\n')
+myfile.close()
+
+
+length_matrix = []
+length_matrix.append(adj_matx)
 times_of_finding = 0
 while True:
     times_of_finding += 1
     print("times_of_finding:", times_of_finding)
     for i in range(0, VERTEX):
         for j in range(i, VERTEX):
-            if length_matrix[i, j] != 0:
-                length_matrix[i, j] = length_matrix[j, i] = np.random.uniform(5.0, 7.1)
-    if len(gauss_curve_calculate(length_matrix)) != 0:
+            if adj_matx[i, j] != 0:
+                length_matrix[0][i, j] = length_matrix[0][j,i] = np.random.uniform(5.0, 7.1)
+    if len(gauss_curve_calculate(length_matrix[0])) != 0:
         break
-numerate_of_edges = {} # Этот словарь для сопоставления номеров рёбер и вершин
-ij = 0 # Переменная, которая нужна для того, чтобы нумеровать рёбра на октаедре
-for i in range(0, VERTEX):
-    for j in range(i, VERTEX):
-        if length_matrix[i,j] != 0:
-            length_of_octahedron[ij, 0] = length_matrix[i,j]
-            numerate_of_edges[ij] = {i, j}
-            ij += 1
+numerate_of_edges = {}
+
+# Этот словарь для сопоставления номеров рёбер и вершин
+# ij = 0 # Переменная, которая нужна для того, чтобы нумеровать рёбра на октаедре
+# for i in range(0, VERTEX):
+#     for j in range(i, VERTEX):
+#         if length_matrix[i,j, 0] != 0:
+#             length_of_octahedron[ij, 0] = length_matrix[i, j, 0]
+#             numerate_of_edges[ij] = {i, j}
+#             ij += 1
+# for fs in list_faces:
 
 prorisovka = 0
 
-gauss_curve = gauss_curve_calculate(length_matrix)
+gauss_curve = gauss_curve_calculate(length_matrix[0])
 
 for i in range(0, VERTEX):
     gauss_curvature[i, 0] = gauss_curve[i]
     # print('gauss_curvature in vertex', i, gauss_curvature[i, 0])
 for j in range(0, VERTEX):
     for k in range(0, VERTEX):
-        print(float("{0:.1f}".format(length_matrix[j, k])), end='\t')
+        print(float("{0:.1f}".format(length_matrix[0][j, k])), end='\t')
     print('\n')
 
-
+perestroyka = 0
 for i in range(0, TIMES - 1):
-
+    str_for_faces = str()
+    degenerate_face = Faces(0, 0, 0)
+    exceptions = 0
     # print(i, 'hello world')
-    calc = Calculate(length_of_octahedron, gauss_curvature[:, 0], list_faces, conformal_weights[:, i])
+    calc = Calculate(gauss_curvature[:, 0], list_faces, conformal_weights[:, i])
     conformal_weights[:, i+1] = calc.weight_calculate() # Пересчитываем конфорные веса
-    i_lng_mtx = get_matrix_lenght(length_matrix, conformal_weights[:, i + 1], VERTEX)  # вычисляем матрицу длин рёбер
+    length_matrix.append(get_matrix_lenght(length_matrix[i], conformal_weights[:, i + 1], VERTEX))  # вычисляем матрицу длин рёбер
 
     times_for_faces = 0
-    perestroyka = 0
+
     klmng = set()
+    generate_faces = Faces(0, 0, 0)
+    deg_face = []
     for fs in list_faces:
         times_for_faces += 1
-        a = i_lng_mtx[fs[0], fs[1]]
-        b = i_lng_mtx[fs[1], fs[2]]
-        c = i_lng_mtx[fs[2], fs[0]]
+        a = length_matrix[i+1][fs[0], fs[1]]
+        b = length_matrix[i+1][fs[1], fs[2]]
+        c = length_matrix[i+1][fs[2], fs[0]]
         # print(a, b, c)
-        exceptions = 0
+
+
         hafl_perim = (a + b + c)/2.
-        if hafl_perim >= 0:
-            exceptions = 0
-        else:
-            exceptions = 1
         kl_mng = 0
         # print('sting NUMBER 86: exception:', exceptions)
         kl_mng = float("{0:.1f}".format(hafl_perim * (hafl_perim - a) * (hafl_perim - b) * (hafl_perim - c)))
@@ -104,67 +143,92 @@ for i in range(0, TIMES - 1):
             # print("keyli menger:", kl_mng)
             # kayli_manger[TIMES, i + 1] = kl_mng
         else:
-            print('Перестройка №_', perestroyka)
-            perestroyka += 1
-            exceptions = 1
-            # exit(0)
-        if exceptions == 1:
+            deg_face.append(fs)
+            a_fs = length_matrix[i + 1][fs[0], fs[1]]
+            b_fs = length_matrix[i + 1][fs[1], fs[2]]
+            c_fs = length_matrix[i + 1][fs[2], fs[0]]
+            max_str = str()
+            if a_fs == max(a_fs, b_fs, c_fs):
+                max_str += (' maximalnoe rebro = ' + str(fs[0]) + str(fs[1]) )
+            if b == max(a_fs, b_fs, c_fs):
+                max_str += (' maximalnoe rebro = ' + str(fs[0]) + str(fs[2]))
+            if c == max(a_fs, b_fs, c_fs):
+                max_str += (' maximalnoe rebro = ' + str(fs[1]) + str(fs[2]))
 
-            print('pered tem kak sozdat class rebuild')
-            rebuild = Rebuilding(list_faces, fs, length_matrix)
-            rebuild.find_faces()
-            rebuild.dell_faces()
-            list_faces = rebuild.new_faces()
-            i_lng_mtx = rebuild.new_length()
-            # kayli_manger[times, i + 1] = kl_mng
-            # times += 1
-            print('perestroyka zakonchena', 'шаг по времени равен', i)
-            prorisovka = i
+            max_rebro = str(max(a_fs, b_fs, c_fs))
+            str_for_faces += (str(fs[0]) + str(fs[1]) + str(fs[2]) + ' shag po vremeny ' + str(i) + max_str + ' \n')
 
-    # print('cycle for all faces', klmng)
+    for sf in deg_face:
+        degenerate_face = sf
+        exceptions = 1
+        print('Перестройка №_', perestroyka, 'шаг по времени: ', i)
+        perestroyka += 1
 
+        print('pered tem kak sozdat class rebuild')
+        rebuild = Rebuilding(list_faces, sf, length_matrix[i + 1])
+        rebuild.find_faces()
+        rebuild.dell_faces()
+        list_faces = rebuild.new_faces()
+        length_matrix.append(rebuild.new_length())
+        out_of_triangulation(adjacency_matrix(list_faces, VERTEX).toarray(), VERTEX, i)
+        print('perestroyka zakonchena', 'шаг по времени равен', i)
+
+    #     exceptions = 0
     try:
-        length_of_octahedron[:, i + 1] = get_lenght(i_lng_mtx, VERTEX)  # длину рёбер октаэдра вносим в массив длин ребер
-        gauss_curve = gauss_curve_calculate(i_lng_mtx)  # пересчитываем гаусовы кривизны
-            # exit(0)
+        # length_of_octahedron[:, i + 1] = get_lenght(i_lng_mtx, VERTEX)  # длину рёбер октаэдра вносим в массив длин ребер
+        prorisovka = i
+        print('do otkrytiya file')
+
+        length_file = open("/Users/ruslanpepa/PycharmProjects/Octahedron/data/lenght_file.txt", "a")
+        print('posle otkrytiya file')
+        length_file.write(str_for_faces + '\n')
+        print('posle zapisy v file')
+        length_file.close()
+        print('posle zakrytiya file')
+        for k in range(0, VERTEX):
+            for l in range(0, VERTEX):
+                if length_matrix[i][k, l] != 0:
+                    length_file = open("/Users/ruslanpepa/PycharmProjects/Octahedron/data/lenght_file.txt", "a")
+                    length_file.write(str(k) + str(l) + "=" + str(length_matrix[i][k, l])  + '\t' + str(i) + '\n')
+                    length_file.close()
+        print('pered podschetom krivizn')
+        gauss_curve = gauss_curve_calculate(length_matrix[i + 1])  # пересчитываем гаусовы кривизны
     except:
         print("perestroyka ne udalas")
+        prorisovka = i
         break
+    degenerate_faces.append(deg_face)
 
 
-# list_of_a_edg = []
-# list_of_b_edg = []
-# list_of_c_edg = []
-# for i in range(0, len(list_faces)):
-#     list_of_a_edg.append(list_faces[0])
-#     list_of_b_edg.append(list_faces[1])
-#     list_of_c_edg.append(list_faces[2])
 
 
 list_of_a_edg = [0, 4, 1, 5, 2, 6, 3, 7]
 list_of_b_edg = [1, 5, 2, 6, 3, 7, 0, 4]
 list_of_c_edg = [8, 8, 10, 10, 11, 11, 9, 9]
 
-fig, ax = plt.subplots(2, 4)
+fig, ax = plt.subplots(2, 3)
 
-for j in range(0, 4):
+for j in range(0, 3):
         ax[0, j].set_xlim(0, 7)
         ax[0, j].set_ylim(0, 7)
         ax[0, j].grid(True)
 
-for j in range(0, 4):
+for j in range(0, 3):
         ax[1, j].set_xlim(0, 7)
         ax[1, j].set_ylim(-7, 0)
         ax[1, j].grid(True)
-phasa = np.arange(0, prorisovka)
+phasa = np.arange(0, len(length_matrix))
 frames = []
 
 for p in phasa:
     pats = []
-    for i in range(0, 8):
-        a = length_of_octahedron[list_of_a_edg[i], p]
-        b = length_of_octahedron[list_of_b_edg[i], p]
-        c = length_of_octahedron[list_of_c_edg[i], p]
+    for i in range(0, 6):
+        a = length_matrix[p][list_faces[i][0], list_faces[i][1]]
+        b = length_matrix[p][list_faces[i][1], list_faces[i][2]]
+        c = length_matrix[p][list_faces[i][2], list_faces[i][0]]
+        # a = length_of_octahedron[list_of_a_edg[i], p]
+        # b = length_of_octahedron[list_of_b_edg[i], p]
+        # c = length_of_octahedron[list_of_c_edg[i], p]
         b_cosine = (a**2 + c**2 - b**2)/(2.*a*c)
         if 1. - b_cosine**2 >= 0:
             b_sinus = np.sqrt(1. - b_cosine**2)
@@ -176,56 +240,74 @@ for p in phasa:
             patch_.set_color('Red')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[0,0].legend(legend)
 
         elif i == 1:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('Green')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[1, 0].legend(legend)
 
         elif i == 2:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('Blue')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[0,1].legend(legend)
 
         elif i == 3:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('Yellow')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[1,1].legend(legend)
         if i == 4:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('k')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[0,2].legend(legend)
 
         elif i == 5:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('b')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[1,2].legend(legend)
 
         elif i == 6:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('m')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[0,3].legend(legend)
 
         elif i == 7:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('c')
             patch_.set_xy(points)
             pats.append(patch_)
+            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            ax[1, 3].legend(legend)
     line1 = ax[0, 0].add_patch(pats[0])
+    # line.set_label('la-la-la')
+    # ax[0,0].legend()
     line2 = ax[1, 0].add_patch(pats[1])
     line3 = ax[0, 1].add_patch(pats[2])
     line4 = ax[1, 1].add_patch(pats[3])
     line5 = ax[0, 2].add_patch(pats[4])
     line6 = ax[1, 2].add_patch(pats[5])
-    line7 = ax[0, 3].add_patch(pats[6])
-    line8 = ax[1, 3].add_patch(pats[7])
-    frames.append([line1, line2, line3, line4, line5, line6, line7, line8])
+    # line7 = ax[0, 3].add_patch(pats[6])
+    # line8 = ax[1, 3].add_patch(pats[7])
+    frames.append([line1, line2, line3, line4, line5, line6])
 
 
 ani = animation = ArtistAnimation(

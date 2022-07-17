@@ -26,12 +26,13 @@ def adjacency_matrix(faces, vertex):
         row.append(fs[0])
         col.append(fs[0])
         col.append(fs[2])
-    print('row and col:','\n', row ,'\n',  col)
+    # print('row and col:','\n', row ,'\n',  col)
     data = [1.] * len(row)  # массив единиц, нужен для конструктора разреженной матрицы
     space_row = np.array(row)
     space_col = np.array(col)
     space_data = np.array(data)
     adj_max = sparse.coo_matrix((space_data, (space_row, space_col)), shape=(vertex, vertex)).tocsc()
+
     return adj_max
 
 
@@ -165,6 +166,35 @@ def fasec_kayli_menger (matrix_length):
 #####
 ##### def_face --- вырожденная грань
 ##### smeg_face --- смежная с вырожденной гранью
+
+def out_of_triangulation(adj_matx_numpy, VERTEX, i):
+    for i in range(0, VERTEX):
+        for j in range(0, VERTEX):
+            if (adj_matx_numpy[i][j] != 0):
+                adj_matx_numpy[i][j] = 1
+            else:
+                adj_matx_numpy[i][j] = 0
+
+    adj_matx_numpy.astype(int)
+    ##создаём файл и записываем в него матрицу смежности
+    string_matrix = '{'
+    for k in range(0, VERTEX):
+        string_matrix += "{"
+        for l in range(0, VERTEX):
+            if l != VERTEX - 1:
+                string_matrix += (str(adj_matx_numpy[k][l].astype(int)) + ',')
+            else:
+                string_matrix += (str(adj_matx_numpy[k][l].astype(int)))
+        if k != VERTEX - 1:
+            string_matrix += ("},")
+        else:
+            string_matrix += "}}"
+
+
+    # print(string_matrix)
+    myfile = open("/Users/ruslanpepa/PycharmProjects/Octahedron/data/data_triang.txt", "a")
+    myfile.write(string_matrix + '\n' + '\n')
+    myfile.close()
 
 def restructuring(list_of_faсes, deg_face, length_mtx):
     a = length_mtx[deg_face[0], deg_face[1]]
