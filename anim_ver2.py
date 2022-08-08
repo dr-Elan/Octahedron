@@ -1,10 +1,11 @@
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.animation as animation
 import matplotlib.patches as patches
-from matplotlib.patches import Circle, Wedge, Polygon
+from matplotlib.patches import  Wedge, Polygon
 from matplotlib.collections import PatchCollection
-# from main import *
+from main import *
 
 fig = plt.figure()
 # ax = fig.add_subplot(111)
@@ -30,9 +31,9 @@ list_of_colors = ['Red', 'Red', 'Blue', 'Blue', 'Green', 'Green', 'Yellow', 'Yel
 list_of_patches = []
 smechenie = 0.0
 for i in range(0, len(list_of_a_edg)):
-    a = length_of_octahedron[list_of_a_edg[i], 0]
-    b = length_of_octahedron[list_of_b_edg[i], 0]
-    c = length_of_octahedron[list_of_c_edg[i], 0]
+    a = length_matrix[list_of_a_edg[i], 0]
+    b = length_matrix[list_of_b_edg[i], 0]
+    c = length_matrix[list_of_c_edg[i], 0]
     cosine = (a**2 + c**2 - b**2)/(2*a*b)
     print('номера граней:', '\t', list_of_a_edg[i], list_of_b_edg[i], list_of_c_edg[i])
     try:
@@ -94,9 +95,9 @@ def animate(i):
 
 
     for j in range(0, len(list_of_a_edg)):
-        a = length_of_octahedron[list_of_a_edg[j], i]
-        b = length_of_octahedron[list_of_b_edg[j], i]
-        c = length_of_octahedron[list_of_c_edg[j], i]
+        a = length_matrix[list_of_a_edg[j], i]
+        b = length_matrix[list_of_b_edg[j], i]
+        c = length_matrix[list_of_c_edg[j], i]
         cosine = (a ** 2 + c ** 2 - b ** 2) / (2 * a * b)
         try:
             sinus = np.sqrt(1 - cosine ** 2)

@@ -21,14 +21,17 @@ class Rebuilding():
         self.a = self.l_mtx[self.dg_fc[0], self.dg_fc[1]]
         self.b = self.l_mtx[self.dg_fc[1], self.dg_fc[2]]
         self.c = self.l_mtx[self.dg_fc[0], self.dg_fc[2]]
-        print('find_faces')
+        print("self.a, self.b, self.c", self.a, self.b, self.c)
         if self.a == max(self.a, self.b, self.c):
+            print("Maximalnoe rebro: "," self.a", self.a)
             self.old_edge = {self.dg_fc[0], self.dg_fc[1]} # вершины, которые лежат на ребре, которое надо удалит
             self.vrtx = {self.dg_fc[2]} # вершина вырожденной грани, которая лежит напротив наибольшего ребера
         elif self.b == max(self.a, self.b, self.c):
+            print("Maximalnoe rebro "," self.b", self.b)
             self.old_edge = {self.dg_fc[0], self.dg_fc[2]} # вершины, которые лежат на ребре, которое надо удалит
             self.vrtx = {self.dg_fc[1]} # вершина вырожденной грани, которая лежит напротив наибольшего ребера
         elif self.c == max({self.a, self.b, self.c}):
+            print("Maximalnoe rebro "," self.b", self.c)
             self.old_edge = {self.dg_fc[1], self.dg_fc[2]} # вершины, которые лежат на ребре, которое надо удалит
             self.vrtx = {self.dg_fc[0]} # вершина вырожденной грани, которая лежит напротив наибольшего ребера
         else:
@@ -41,9 +44,8 @@ class Rebuilding():
             if self.old_edge.issubset(set_of_vrtx):
                 if self.vrtx.issubset(set_of_vrtx):
                     self.degenerat_face = self.l_o_f[i]
-
                     print('вырожденная грань:', self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
-                else:
+                elif not self.vrtx.issubset(set_of_vrtx):
                     self.smeg_face = self.l_o_f[i]
                     print('смежная с вырожденной гранью:', self.l_o_f[i][0], self.l_o_f[i][1], self.l_o_f[i][2])
         degenerate_faces_matrix = 0

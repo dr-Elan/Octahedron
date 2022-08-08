@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from gauss_calc import Gauss
 
 from smeg_matrix import *
 import matplotlib.patches as patches
@@ -7,6 +8,7 @@ from rebuilding import Rebuilding
 from calculation import Calculate
 from matplotlib.animation import ArtistAnimation
 from matplotlib.ticker import NullLocator
+
 # warnings.simplefilter('ignore', SparseEfficiencyWarning)
 lc = NullLocator()
 
@@ -14,18 +16,18 @@ file_path = '/Users/ruslanpepa/PycharmProjects/Octahedron/tet_octahed.txt'
 VERTEX = 5  # количество вершин в многограннике
 EDGES = 9  # количество ребер в многограннике
 FACES = 6  # количестов граней в многограннике
-TIMES = 12# количество шагов по времени
+TIMES = 1200  # количество шагов по времени
 step_time = 0.001  # шаг по времени
 list_faces = []  # список, который будет содержать все грани
 with open(file_path) as fl_wth_fs:  # выгрузим из файла все номера вершин
     lines = fl_wth_fs.readlines()
-for line in lines:  # все номера вершин загоним в списко файлов
+for line in lines:  # все номера вершин загоним в списко файлову
     ns_vx = line.rstrip('\n').split('\t')  # получили только числа из каждой строки
     a = int(ns_vx[0])
     b = int(ns_vx[1])
     c = int(ns_vx[2])
     list_faces.append(Faces(a, b, c))
-max_gauss_curv = np.ones(TIMES, float) # график максимальной кривизнв веришне
+max_gauss_curv = np.ones(TIMES, float) # график максимальной кривизнв веришне 
 min_gauss_curv = np.ones(TIMES, float) # график минимальной кривизнв веришне
 conformal_weights = np.ones((VERTEX, TIMES), float)  # конформные веса в вершинах
 gauss_curvature = np.zeros((VERTEX, TIMES), float) # гауссова кривизна в начальный момент времени
@@ -65,6 +67,7 @@ myfile.write(string_matrix + '\n' + '\n')
 myfile.close()
 
 
+
 length_matrix = []
 length_matrix.append(adj_matx)
 times_of_finding = 0
@@ -74,10 +77,34 @@ while True:
     for i in range(0, VERTEX):
         for j in range(i, VERTEX):
             if adj_matx[i, j] != 0:
-                length_matrix[0][i, j] = length_matrix[0][j,i] = np.random.uniform(5.0, 7.1)
-    if len(gauss_curve_calculate(length_matrix[0])) != 0:
+                length_matrix[0][i, j] = length_matrix[0][j,i] = np.random.uniform(6.0, 7.0)
+    while True:
+        random_i = np.random.randint(0, VERTEX)
+        random_j = np.random.randint(0, VERTEX)
+        if adj_matx[random_i, random_j] != 0:
+            break
+    
+    # length_matrix[0][random_i, random_j] = length_matrix[0][random_j, random_i] = np.random.uniform(0.9, 1.2)
+    Gauss_Curve = Gauss(length_matrix[0], list_faces)
+    Gauss_Curve.date_prepare()
+    Gauss_Curve.gauss_calculate()
+    if Gauss_Curve.existence == 0:
         break
+    # if len(gauss_curve_calculate(length_matrix[0])) != 0:
+        # break
 numerate_of_edges = {}
+
+# length_matrix[0][0, 1] = length_matrix[0][1, 0] = 0.421955
+# length_matrix[0][0, 2] = length_matrix[0][2, 0] = 0.591201
+# length_matrix[0][0, 3] = length_matrix[0][3, 0] = 0.557806
+# length_matrix[0][1, 2] = length_matrix[0][2, 1] = 0.294093
+# length_matrix[0][1, 3] = length_matrix[0][3, 1] = 0.899176
+# length_matrix[0][1, 4] = length_matrix[0][4, 1] = 0.764728
+# length_matrix[0][2, 3] = length_matrix[0][3, 2] = 0.145223
+# length_matrix[0][2, 4] = length_matrix[0][4, 2] = 0.70348
+# length_matrix[0][3, 4] = length_matrix[0][4, 3] = 0.752389
+
+
 
 # Этот словарь для сопоставления номеров рёбер и вершин
 # ij = 0 # Переменная, которая нужна для того, чтобы нумеровать рёбра на октаедре
@@ -91,15 +118,29 @@ numerate_of_edges = {}
 
 prorisovka = 0
 
-gauss_curve = gauss_curve_calculate(length_matrix[0])
+Gauss_Curve = Gauss(length_matrix[0], list_faces)
+Gauss_Curve.date_prepare()
+Gauss_Curve.gauss_calculate()
+gauss_curve = Gauss_Curve.gauss_curve
+# gauss_curve = gauss_curve_calculate(length_matrix[0], list_faces)
+
 
 for i in range(0, VERTEX):
     gauss_curvature[i, 0] = gauss_curve[i]
     # print('gauss_curvature in vertex', i, gauss_curvature[i, 0])
 for j in range(0, VERTEX):
     for k in range(0, VERTEX):
-        print(float("{0:.1f}".format(length_matrix[0][j, k])), end='\t')
+        print(float("{0:.10f}".format(length_matrix[0][j, k])), end='\t')
     print('\n')
+
+
+# gauss_curve = gauss_curve_calculate(length_matrix[0], list_faces)
+
+for i in range(0, VERTEX):
+    gauss_curvature[i, 0] = gauss_curve[i]
+    # print('gauss_curvature in vertex', i, gauss_curvature[i, 0])
+
+
 
 perestroyka = 0
 for i in range(0, TIMES - 1):
@@ -109,7 +150,7 @@ for i in range(0, TIMES - 1):
     # print(i, 'hello world')
     calc = Calculate(gauss_curvature[:, 0], list_faces, conformal_weights[:, i])
     conformal_weights[:, i+1] = calc.weight_calculate() # Пересчитываем конфорные веса
-    length_matrix.append(get_matrix_lenght(length_matrix[i], conformal_weights[:, i + 1], VERTEX))  # вычисляем матрицу длин рёбер
+    length_matrix.append(get_matrix_lenght(length_matrix[i], conformal_weights[:, i + 1 ], VERTEX))  # вычисляем матрицу длин рёбер
 
     times_for_faces = 0
 
@@ -118,16 +159,17 @@ for i in range(0, TIMES - 1):
     deg_face = []
     for fs in list_faces:
         times_for_faces += 1
-        a = length_matrix[i+1][fs[0], fs[1]]
-        b = length_matrix[i+1][fs[1], fs[2]]
-        c = length_matrix[i+1][fs[2], fs[0]]
+        a = length_matrix[i + 1][fs[0], fs[1]]
+        b = length_matrix[i + 1][fs[1], fs[2]]
+        c = length_matrix[i + 1][fs[2], fs[0]]
         # print(a, b, c)
 
 
         hafl_perim = (a + b + c)/2.
         kl_mng = 0
         # print('sting NUMBER 86: exception:', exceptions)
-        kl_mng = float("{0:.1f}".format(hafl_perim * (hafl_perim - a) * (hafl_perim - b) * (hafl_perim - c)))
+        kl_mng = float("{0:.10f}".format(hafl_perim * (hafl_perim - a) * (hafl_perim - b) * (hafl_perim - c)))
+        print(kl_mng)
         klmng.add(kl_mng)
         # print('times_for_faces%', times_for_faces,kl_mng )
 
@@ -137,7 +179,7 @@ for i in range(0, TIMES - 1):
             a_cos = (b ** 2 + c ** 2 - a ** 2) / (2. * c * b)
             b_cos = (c ** 2 + a ** 2 - b ** 2) / (2. * a * c)
             c_cos = (a ** 2 + b ** 2 - c ** 2) / (2. * a * b)
-            a_sin = np.sqrt(1. - a_cos**2)
+            a_sin = np.sqrt(1. - a_cos ** 2)
             b_sin = np.sqrt(1. - b_cos ** 2)
             c_sin = np.sqrt(1. - c_cos ** 2)
             # print("keyli menger:", kl_mng)
@@ -157,7 +199,7 @@ for i in range(0, TIMES - 1):
 
             max_rebro = str(max(a_fs, b_fs, c_fs))
             str_for_faces += (str(fs[0]) + str(fs[1]) + str(fs[2]) + ' shag po vremeny ' + str(i) + max_str + ' \n')
-
+    print("КОЛИЧЕСТВО ВЫРОЖДЕННЫХ ГРАНЕЙ РАВНО: ", len(deg_face))
     for sf in deg_face:
         degenerate_face = sf
         exceptions = 1
@@ -170,29 +212,42 @@ for i in range(0, TIMES - 1):
         rebuild.dell_faces()
         list_faces = rebuild.new_faces()
         length_matrix.append(rebuild.new_length())
+        gaus_curv = Gauss(length_matrix[i + 1],list_faces)
+        gaus_curv.date_prepare()
+        gaus_curv.gauss_calculate()
+        if gaus_curv.existence == 1:
+            break
+
         out_of_triangulation(adjacency_matrix(list_faces, VERTEX).toarray(), VERTEX, i)
         print('perestroyka zakonchena', 'шаг по времени равен', i)
+
+
 
     #     exceptions = 0
     try:
         # length_of_octahedron[:, i + 1] = get_lenght(i_lng_mtx, VERTEX)  # длину рёбер октаэдра вносим в массив длин ребер
         prorisovka = i
-        print('do otkrytiya file')
+        # print('do otkrytiya file')
 
         length_file = open("/Users/ruslanpepa/PycharmProjects/Octahedron/data/lenght_file.txt", "a")
-        print('posle otkrytiya file')
+        # print('posle otkrytiya file')
         length_file.write(str_for_faces + '\n')
-        print('posle zapisy v file')
+        # print('posle zapisy v file')
         length_file.close()
-        print('posle zakrytiya file')
+        # print('posle zakrytiya file')
         for k in range(0, VERTEX):
             for l in range(0, VERTEX):
                 if length_matrix[i][k, l] != 0:
                     length_file = open("/Users/ruslanpepa/PycharmProjects/Octahedron/data/lenght_file.txt", "a")
                     length_file.write(str(k) + str(l) + "=" + str(length_matrix[i][k, l])  + '\t' + str(i) + '\n')
                     length_file.close()
-        print('pered podschetom krivizn')
-        gauss_curve = gauss_curve_calculate(length_matrix[i + 1])  # пересчитываем гаусовы кривизны
+        # print('pered podschetom krivizn')
+        # gauss_curve = gauss_curve_calculate(length_matrix[i + 1])  # пересчитываем гаусовы кривизны
+        gaus_curv = Gauss(length_matrix[i + 1], list_faces )
+        gaus_curv.date_prepare()
+        gaus_curv.gauss_calculate()
+        if gaus_curv.existence == 1:
+            break
     except:
         print("perestroyka ne udalas")
         prorisovka = i
@@ -209,13 +264,13 @@ list_of_c_edg = [8, 8, 10, 10, 11, 11, 9, 9]
 fig, ax = plt.subplots(2, 3)
 
 for j in range(0, 3):
-        ax[0, j].set_xlim(0, 7)
-        ax[0, j].set_ylim(0, 7)
+        ax[0, j].set_xlim(-7, 7)
+        ax[0, j].set_ylim(-7, 7)
         ax[0, j].grid(True)
 
 for j in range(0, 3):
-        ax[1, j].set_xlim(0, 7)
-        ax[1, j].set_ylim(-7, 0)
+        ax[1, j].set_xlim(-7, 7)
+        ax[1, j].set_ylim(-7, 7)
         ax[1, j].grid(True)
 phasa = np.arange(0, len(length_matrix))
 frames = []
