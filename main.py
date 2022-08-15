@@ -16,8 +16,8 @@ file_path = '/Users/ruslanpepa/PycharmProjects/Octahedron/tet_octahed.txt'
 VERTEX = 5  # количество вершин в многограннике
 EDGES = 9  # количество ребер в многограннике
 FACES = 6  # количестов граней в многограннике
-TIMES = 120  # количество шагов по времени
-step_time = 0.001  # шаг по времени
+TIMES = 15  # количество шагов по времени
+step_time = 0.01  # шаг по времени
 list_faces = []  # список, который будет содержать все грани
 with open(file_path) as fl_wth_fs:  # выгрузим из файла все номера вершин
     lines = fl_wth_fs.readlines()
@@ -71,38 +71,38 @@ myfile.close()
 length_matrix = []
 length_matrix.append(adj_matx)
 times_of_finding = 0
-while True:
-    times_of_finding += 1
-    print("times_of_finding:", times_of_finding)
-    for i in range(0, VERTEX):
-        for j in range(i, VERTEX):
-            if adj_matx[i, j] != 0:
-                length_matrix[0][i, j] = length_matrix[0][j,i] = np.random.uniform(5.0, 6.0)
-    while True:
-        random_i = np.random.randint(0, VERTEX)
-        random_j = np.random.randint(0, VERTEX)
-        if adj_matx[random_i, random_j] != 0:
-            break
+# while True:
+#     times_of_finding += 1
+#     print("times_of_finding:", times_of_finding)
+#     for i in range(0, VERTEX):
+#         for j in range(i, VERTEX):
+#             if adj_matx[i, j] != 0:
+#                 length_matrix[0][i, j] = length_matrix[0][j,i] = np.random.uniform(5.0, 6.0)
+#     while True:
+#         random_i = np.random.randint(0, VERTEX)
+#         random_j = np.random.randint(0, VERTEX)
+#         if adj_matx[random_i, random_j] != 0:
+#             break
     
-    # length_matrix[0][random_i, random_j] = length_matrix[0][random_j, random_i] = np.random.uniform(0.9, 1.2)
-    Gauss_Curve = Gauss(length_matrix[0], list_faces)
-    Gauss_Curve.date_prepare()
-    Gauss_Curve.gauss_calculate()
-    if Gauss_Curve.existence == 0:
-        break
-    # if len(gauss_curve_calculate(length_matrix[0])) != 0:
-        # break
-numerate_of_edges = {}
+#     # length_matrix[0][random_i, random_j] = length_matrix[0][random_j, random_i] = np.random.uniform(0.9, 1.2)
+#     Gauss_Curve = Gauss(length_matrix[0], list_faces)
+#     Gauss_Curve.date_prepare()
+#     Gauss_Curve.gauss_calculate()
+#     if Gauss_Curve.existence == 0:
+#         break
+#     # if len(gauss_curve_calculate(length_matrix[0])) != 0:
+#         # break
+# numerate_of_edges = {}
 
-# length_matrix[0][0, 1] = length_matrix[0][1, 0] = 0.421955
-# length_matrix[0][0, 2] = length_matrix[0][2, 0] = 0.591201
-# length_matrix[0][0, 3] = length_matrix[0][3, 0] = 0.557806
-# length_matrix[0][1, 2] = length_matrix[0][2, 1] = 0.294093
-# length_matrix[0][1, 3] = length_matrix[0][3, 1] = 0.899176
-# length_matrix[0][1, 4] = length_matrix[0][4, 1] = 0.764728
-# length_matrix[0][2, 3] = length_matrix[0][3, 2] = 0.145223
-# length_matrix[0][2, 4] = length_matrix[0][4, 2] = 0.70348
-# length_matrix[0][3, 4] = length_matrix[0][4, 3] = 0.752389
+length_matrix[0][0, 1] = length_matrix[0][1, 0] = 0.421955
+length_matrix[0][0, 2] = length_matrix[0][2, 0] = 0.591201
+length_matrix[0][0, 3] = length_matrix[0][3, 0] = 0.557806
+length_matrix[0][1, 2] = length_matrix[0][2, 1] = 0.294093
+length_matrix[0][1, 3] = length_matrix[0][3, 1] = 0.899176
+length_matrix[0][1, 4] = length_matrix[0][4, 1] = 0.764728
+length_matrix[0][2, 3] = length_matrix[0][3, 2] = 0.145223
+length_matrix[0][2, 4] = length_matrix[0][4, 2] = 0.70348
+length_matrix[0][3, 4] = length_matrix[0][4, 3] = 0.752389
 
 
 

@@ -137,7 +137,7 @@ class Rebuilding():
         # self.l_mtx[self.a[0], self.b[0]] = self.l_mtx[self.b[0], self.a[0]] = lenth_of_new_edge
         for i in range(0, len(list(self.set_of_vertex))):
             for j in range(0, len(list(self.set_of_vertex))):
-                print(float("{0:.1f}".format(new_adj_matx[i, j])), end='\t')
+                print(float("{0:.10f}".format(new_adj_matx[i, j])), end='\t')
             print('\n')
         return new_adj_matx
 
