@@ -10,24 +10,24 @@ class Gauss():
     def __init__(self, matrix_lenght, lst_fasec):
         
         self.lst_fs = lst_fasec
-        print('создаём класс Gauss', 13)
+        # print('создаём класс Gauss', 13)
         self.mtx_lght = matrix_lenght
-        print('создаём класс Gauss', 15)
+        # print('создаём класс Gauss', 15)
         self.row, self.col = self.mtx_lght.nonzero()
-        print('создаём класс Gauss', 17)
+        # print('создаём класс Gauss', 17)
         self.dictinary_vertex = {}
-        print('создаём класс Gauss', 19)
+        # print('создаём класс Gauss', 19)
         self.dictinary_gauss = {}
-        print('создаём класс Gauss', 20)
+        # print('создаём класс Gauss', 20)
         self.existence = 0
-        print('создаём класс Gauss', 23)
+        # print('создаём класс Gauss', 23)
         self.gauss_curve = np.full(len(self.dictinary_gauss), 2.*np.pi)
-        print('создаём класс Gauss', 25)
+        # print('создаём класс Gauss', 25)
         self.massiv_fasece = []
-        print('создаём класс Gauss', 27)
+        # print('создаём класс Gauss', 27)
         for lfs in self.lst_fs:
             self.massiv_fasece.append(sorted([lfs[0], lfs[1], lfs[2]]))
-        print('создаём класс Gauss', 30)
+        # print('создаём класс Gauss', 30)
 
     def date_prepare(self):
         for j in range(0, self.mtx_lght.count_nonzero()):

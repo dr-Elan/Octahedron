@@ -16,7 +16,7 @@ file_path = '/Users/ruslanpepa/PycharmProjects/Octahedron/tet_octahed.txt'
 VERTEX = 5  # количество вершин в многограннике
 EDGES = 9  # количество ребер в многограннике
 FACES = 6  # количестов граней в многограннике
-TIMES = 1200  # количество шагов по времени
+TIMES = 120  # количество шагов по времени
 step_time = 0.001  # шаг по времени
 list_faces = []  # список, который будет содержать все грани
 with open(file_path) as fl_wth_fs:  # выгрузим из файла все номера вершин
@@ -77,7 +77,7 @@ while True:
     for i in range(0, VERTEX):
         for j in range(i, VERTEX):
             if adj_matx[i, j] != 0:
-                length_matrix[0][i, j] = length_matrix[0][j,i] = np.random.uniform(6.0, 7.0)
+                length_matrix[0][i, j] = length_matrix[0][j,i] = np.random.uniform(5.0, 6.0)
     while True:
         random_i = np.random.randint(0, VERTEX)
         random_j = np.random.randint(0, VERTEX)
@@ -148,7 +148,7 @@ for i in range(0, TIMES - 1):
     degenerate_face = Faces(0, 0, 0)
     exceptions = 0
     # print(i, 'hello world')
-    calc = Calculate(gauss_curvature[:, 0], list_faces, conformal_weights[:, i])
+    calc = Calculate(gauss_curvature[:, i], list_faces, conformal_weights[:, 0])
     conformal_weights[:, i+1] = calc.weight_calculate() # Пересчитываем конфорные веса
     length_matrix.append(get_matrix_lenght(length_matrix[i], conformal_weights[:, i + 1 ], VERTEX))  # вычисляем матрицу длин рёбер
 
@@ -246,13 +246,25 @@ for i in range(0, TIMES - 1):
         gaus_curv = Gauss(length_matrix[i + 1], list_faces )
         gaus_curv.date_prepare()
         gaus_curv.gauss_calculate()
+
         if gaus_curv.existence == 1:
             break
+        # for j in range(0, VERTEX):
+        #     gauss_curvature[j, i+1] = gaus_curv.gauss_curve
     except:
         print("perestroyka ne udalas")
         prorisovka = i
         break
-    degenerate_faces.append(deg_face)
+
+    # degenerate_faces.append(deg_face)
+    gauss_curve = gauss_curve_calculate(length_matrix[i+1], list_faces)
+
+    for j in range(0, VERTEX):
+        gauss_curvature[j, i+1] = gauss_curve[j]
+    # Gaus_curv_i = Gauss(length_matrix[i], list_faces)
+    # Gaus_curv_i.date_prepare()
+    # Gaus_curv_i.gauss_calculate()
+    # gauss_curvature[:, i+1] = Gaus_curv_i.gauss_curve
 
 
 
@@ -264,13 +276,13 @@ list_of_c_edg = [8, 8, 10, 10, 11, 11, 9, 9]
 fig, ax = plt.subplots(2, 3)
 
 for j in range(0, 3):
-        ax[0, j].set_xlim(-7, 7)
-        ax[0, j].set_ylim(-7, 7)
+        ax[0, j].set_xlim(0, 8)
+        ax[0, j].set_ylim(0, 8)
         ax[0, j].grid(True)
 
 for j in range(0, 3):
-        ax[1, j].set_xlim(-7, 7)
-        ax[1, j].set_ylim(-7, 7)
+        ax[1, j].set_xlim(0, 8)
+        ax[1, j].set_ylim(-8, 0)
         ax[1, j].grid(True)
 phasa = np.arange(0, len(length_matrix))
 frames = []
