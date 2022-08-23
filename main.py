@@ -16,8 +16,8 @@ file_path = '/Users/ruslanpepa/PycharmProjects/Octahedron/tet_octahed.txt'
 VERTEX = 5  # количество вершин в многограннике
 EDGES = 9  # количество ребер в многограннике
 FACES = 6  # количестов граней в многограннике
-TIMES = 15  # количество шагов по времени
-step_time = 0.01  # шаг по времени
+TIMES = 1150  # количество шагов по времени
+step_time = 0.0001  # шаг по времени
 list_faces = []  # список, который будет содержать все грани
 with open(file_path) as fl_wth_fs:  # выгрузим из файла все номера вершин
     lines = fl_wth_fs.readlines()
@@ -27,6 +27,8 @@ for line in lines:  # все номера вершин загоним в спи�
     b = int(ns_vx[1])
     c = int(ns_vx[2])
     list_faces.append(Faces(a, b, c))
+two_dim_lst_fs = []
+two_dim_lst_fs.append(list_faces)
 max_gauss_curv = np.ones(TIMES, float) # график максимальной кривизнв веришне 
 min_gauss_curv = np.ones(TIMES, float) # график минимальной кривизнв веришне
 conformal_weights = np.ones((VERTEX, TIMES), float)  # конформные веса в вершинах
@@ -148,7 +150,7 @@ for i in range(0, TIMES - 1):
     degenerate_face = Faces(0, 0, 0)
     exceptions = 0
     # print(i, 'hello world')
-    calc = Calculate(gauss_curvature[:, i], list_faces, conformal_weights[:, 0])
+    calc = Calculate(gauss_curvature[:, i], list_faces, conformal_weights[:, 0], step_time )
     conformal_weights[:, i+1] = calc.weight_calculate() # Пересчитываем конфорные веса
     length_matrix.append(get_matrix_lenght(length_matrix[i], conformal_weights[:, i + 1 ], VERTEX))  # вычисляем матрицу длин рёбер
 
@@ -261,6 +263,7 @@ for i in range(0, TIMES - 1):
 
     for j in range(0, VERTEX):
         gauss_curvature[j, i+1] = gauss_curve[j]
+    two_dim_lst_fs.append(list_faces)
     # Gaus_curv_i = Gauss(length_matrix[i], list_faces)
     # Gaus_curv_i.date_prepare()
     # Gaus_curv_i.gauss_calculate()
@@ -268,31 +271,41 @@ for i in range(0, TIMES - 1):
 
 
 
-
-list_of_a_edg = [0, 4, 1, 5, 2, 6, 3, 7]
-list_of_b_edg = [1, 5, 2, 6, 3, 7, 0, 4]
-list_of_c_edg = [8, 8, 10, 10, 11, 11, 9, 9]
+# list_of_a_edg = [0, 4, 1, 5, 2, 6, 3, 7]
+# list_of_b_edg = [1, 5, 2, 6, 3, 7, 0, 4]
+# list_of_c_edg = [8, 8, 10, 10, 11, 11, 9, 9]
 
 fig, ax = plt.subplots(2, 3)
 
 for j in range(0, 3):
-        ax[0, j].set_xlim(0, 8)
-        ax[0, j].set_ylim(0, 8)
+        ax[0, j].set_xlim(0, 1)
+        ax[0, j].set_ylim(0, 1)
         ax[0, j].grid(True)
 
 for j in range(0, 3):
-        ax[1, j].set_xlim(0, 8)
-        ax[1, j].set_ylim(-8, 0)
+        ax[1, j].set_xlim(0, 1)
+        ax[1, j].set_ylim(-1, 0)
         ax[1, j].grid(True)
-phasa = np.arange(0, len(length_matrix))
+
+# phasa = np.arange(0, len(length_matrix))
+phasa = np.arange(0, len(two_dim_lst_fs))
+# phasa = len(two_dim_lst_fs)
 frames = []
+
+# print("two_dim_lst_fs:   " , len(two_dim_lst_fs))
+# if ( len(two_dim_lst_fs) == len(length_matrix) ):
+#     print("EVERYTHINK COOL")
+# else:
+#     print("two_dim_lst_fs:   " , len(two_dim_lst_fs))
+#     print("phasa: ", phasa)
 
 for p in phasa:
     pats = []
+    p_list_faces = two_dim_lst_fs[p]
     for i in range(0, 6):
-        a = length_matrix[p][list_faces[i][0], list_faces[i][1]]
-        b = length_matrix[p][list_faces[i][1], list_faces[i][2]]
-        c = length_matrix[p][list_faces[i][2], list_faces[i][0]]
+        a = length_matrix[p][p_list_faces[i][0], p_list_faces[i][1]]
+        b = length_matrix[p][p_list_faces[i][1], p_list_faces[i][2]]
+        c = length_matrix[p][p_list_faces[i][2], p_list_faces[i][0]]
         # a = length_of_octahedron[list_of_a_edg[i], p]
         # b = length_of_octahedron[list_of_b_edg[i], p]
         # c = length_of_octahedron[list_of_c_edg[i], p]
@@ -307,7 +320,7 @@ for p in phasa:
             patch_.set_color('Red')
             patch_.set_xy(points)
             pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            legend = str(p_list_faces[i][0]) + str(p_list_faces[i][1]) + str(p_list_faces[i][2])
             ax[0,0].legend(legend)
 
         elif i == 1:
@@ -315,7 +328,7 @@ for p in phasa:
             patch_.set_color('Green')
             patch_.set_xy(points)
             pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            legend = str(p_list_faces[i][0]) + str(p_list_faces[i][1]) + str(p_list_faces[i][2])
             ax[1, 0].legend(legend)
 
         elif i == 2:
@@ -323,7 +336,7 @@ for p in phasa:
             patch_.set_color('Blue')
             patch_.set_xy(points)
             pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            legend = str(p_list_faces[i][0]) + str(p_list_faces[i][1]) + str(p_list_faces[i][2])
             ax[0,1].legend(legend)
 
         elif i == 3:
@@ -331,14 +344,14 @@ for p in phasa:
             patch_.set_color('Yellow')
             patch_.set_xy(points)
             pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            legend = str(p_list_faces[i][0]) + str(p_list_faces[i][1]) + str(p_list_faces[i][2])
             ax[1,1].legend(legend)
         if i == 4:
             patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
             patch_.set_color('k')
             patch_.set_xy(points)
             pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            legend = str(p_list_faces[i][0]) + str(p_list_faces[i][1]) + str(p_list_faces[i][2])
             ax[0,2].legend(legend)
 
         elif i == 5:
@@ -346,24 +359,24 @@ for p in phasa:
             patch_.set_color('b')
             patch_.set_xy(points)
             pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+            legend = str(p_list_faces[i][0]) + str(p_list_faces[i][1]) + str(p_list_faces[i][2])
             ax[1,2].legend(legend)
 
-        elif i == 6:
-            patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
-            patch_.set_color('m')
-            patch_.set_xy(points)
-            pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
-            ax[0,3].legend(legend)
+        # elif i == 6:
+        #     patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
+        #     patch_.set_color('m')
+        #     patch_.set_xy(points)
+        #     pats.append(patch_)
+        #     legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+        #     ax[0,3].legend(legend)
 
-        elif i == 7:
-            patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
-            patch_.set_color('c')
-            patch_.set_xy(points)
-            pats.append(patch_)
-            legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
-            ax[1, 3].legend(legend)
+        # elif i == 7:
+        #     patch_ = patches.Polygon(points, closed=False, fc='r', ec='r', alpha=0.4)
+        #     patch_.set_color('c')
+        #     patch_.set_xy(points)
+        #     pats.append(patch_)
+        #     legend = str(list_faces[i][0]) + str(list_faces[i][1]) + str(list_faces[i][2])
+        #     ax[1, 3].legend(legend)
     line1 = ax[0, 0].add_patch(pats[0])
     # line.set_label('la-la-la')
     # ax[0,0].legend()

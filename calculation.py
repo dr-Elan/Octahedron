@@ -1,13 +1,13 @@
 import numpy as np
 from rebuilding import Rebuilding
 class Calculate():
-    def __init__(self, gauss_curve, list_faces, conformal_weights ):
+    def __init__(self, gauss_curve, list_faces, conformal_weights, time_step ):
         # self.lenght_of_edges = length_of_octahedron
         self.curv_gauss_vrtx = gauss_curve
         self.l_o_f = list_faces
         self.conf_weght = conformal_weights
         self.vertex = len(self.conf_weght)
-        self.step_time = 0.01
+        self.step_time = time_step
         # print(self.vertex, "тестируем класс калькулейт")
         # print("длина массива конформал вейт:", len(self.conf_weght))
 
