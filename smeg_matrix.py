@@ -40,6 +40,7 @@ def gauss_curve_calculate(matrix_length, fasec_list):
     lst_fscs = []
     for lfs in fasec_list:
         lst_fscs.append(sorted([lfs[0], lfs[1], lfs[2]]))
+        # print(lfs[0], lfs[1], lfs[2])
 
     row, col = matrix_length.nonzero()  # в
     dictinary_vertex = {}  # вспомогательный словарь, ключ -- номер вершины, значение -- список вершин, смежных с ключом
@@ -56,8 +57,10 @@ def gauss_curve_calculate(matrix_length, fasec_list):
                 if matrix_length[i, j] != 0 and matrix_length[j, i] != 0 and (sorted([key, i, j]) in lst_fscs):
                     list_of_adjency_vertex.append(sorted([i, j]))
         dictinary_gauss[key] = list(map(list, {tuple(x) for x in list_of_adjency_vertex}))
-    print(dictinary_vertex)
-    print("dictinary_gauss: ", dictinary_gauss)
+    for key, arr in dictinary_vertex.items():
+        print(key, '\t', len(arr))
+    # print(dictinary_vertex)
+    # print("dictinary_gauss: ", dictinary_gauss)
     # print(dictinary_vertex)
     gauss_curve = np.full(len(dictinary_gauss), 2. * np.pi)
     exeptions = 0
@@ -68,8 +71,10 @@ def gauss_curve_calculate(matrix_length, fasec_list):
             b = matrix_length[v[1], key]
             c = matrix_length[v[0], key]
 
-            c_cos = (b ** 2 + c ** 2 - a ** 2) / (2. * c * b)
-            print("c_cos: ", c_cos)
+
+            a_cos = (b ** 2 + c ** 2 - a ** 2) / (2. * c * b)
+            # print(key,'\t',"naprotiv", v[0], v[1])
+            # print("a_cos: ", a_cos)
 
             hafl_perim = (a + b + c)/2.
 
@@ -77,7 +82,7 @@ def gauss_curve_calculate(matrix_length, fasec_list):
             klmng.add(kl_mng)
             # print('gauss calc', kl_mng)
             if kl_mng >= 0:
-                gauss_curve[key] -= np.arccos(c_cos)
+                gauss_curve[key] -= np.arccos(a_cos)
             else:
                 # print("gauss_curve РАВНО НУЛЮ")
                 gauss_curve[key] = 0

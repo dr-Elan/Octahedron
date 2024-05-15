@@ -42,6 +42,8 @@ class Gauss():
                     if self.mtx_lght[i, j] != 0 and self.mtx_lght[j, i] != 0 and (sorted([key, i, j]) in  self.lst_fs):
                         list_of_adjency_vertex.append(sorted([i,j]))
             self.dictinary_gauss[key] = list(map(list, {tuple(x) for x in list_of_adjency_vertex}))
+        for key, arr in self.dictinary_vertex.items():
+            print(key, '\t', len(arr))
         return None
             
     def gauss_calculate(self):

@@ -118,10 +118,20 @@ class Rebuilding():
             print('Определитель Кэлли-Менгера смежной с вырожденной гранью', klmng)
             cosine_alpha = ((a_length) ** 2 + c_shtrih ** 2 - b_shtrih ** 2) / (2. * (a_length) * c_shtrih)
             print(cosine_alpha)
-            lenth_of_new_edge = np.sqrt(c_length**2 + c_shtrih**2 - 2.*c_length*c_shtrih * cosine_alpha)
+            lenth_of_new_edge_sqrt = np.sqrt(c_length**2 + c_shtrih**2 - 2.*c_length*c_shtrih * cosine_alpha)
+            lenth_of_new_edge_similar = -2.*cosine_alpha*b_shtrih*b_length * (a_length/(b_length + c_length)) + b_shtrih**2 + b_length**2 *  (a_length/(b_length + c_length))             
+            lenth_of_new_edge = lenth_of_new_edge_similar
+            ######## ПРОВЕРКА СУЩЕСТВОВАНИЯ ДВУХ НОВЫХ ГРАНЕЙ ######
+            first_triangle_perimetr = (b_shtrih + b_length + lenth_of_new_edge)/2
+            kely_menger_det_first = first_triangle_perimetr*(first_triangle_perimetr - b_shtrih )*(first_triangle_perimetr - b_length)*(first_triangle_perimetr - lenth_of_new_edge)
+            second_triangle_perimetr = (c_shtrih + c_length + lenth_of_new_edge)
+            key_menger_det_second = second_triangle_perimetr*(second_triangle_perimetr - c_shtrih)*(second_triangle_perimetr - c_length)*(second_triangle_perimetr - lenth_of_new_edge)
+            print("kely_menger_det_first", kely_menger_det_first, "\t" , "key_menger_det_second", key_menger_det_second)
+            ########################################################
         except ArithmeticError:
             print('Delenie na nol')
-        print('lenth_of_new_edge:', lenth_of_new_edge)
+        # print('lenth_of_new_edge:', lenth_of_new_edge)
+        print ("lenth_of_new_edge_similar% " , lenth_of_new_edge , "\t" , "lenth_of_new_edge_sqrt" , lenth_of_new_edge_sqrt)
         new_adj_matx = adjacency_matrix(self.l_o_f, len(list(self.set_of_vertex)))
         print(len(new_adj_matx.nonzero()), 'количество ненулевых элементов в новой матрице')
         for i in range(0, len(list(self.set_of_vertex))):
